@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { useAuth } from '../contexts/AuthContext';
-import { useCart } from '../contexts/CartContext';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { token } = useAuth();
   const { clearCart } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [paymentMethod, setPaymentMethod] = useState("card");
   const [cardDetails, setCardDetails] = useState({
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    cardholderName: ''
+    cardNumber: "",
+    expiryDate: "",
+    cvv: "",
+    cardholderName: "",
   });
-  const [upiId, setUpiId] = useState('');
+  const [upiId, setUpiId] = useState("");
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState(null);
 
@@ -29,9 +29,9 @@ const Payment = () => {
 
   const handleCardInputChange = (e) => {
     const { name, value } = e.target;
-    setCardDetails(prev => ({
+    setCardDetails((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -42,46 +42,49 @@ const Payment = () => {
     try {
       let paymentDetails = {};
 
-      if (paymentMethod === 'card') {
-        const [expiryMonth, expiryYear] = cardDetails.expiryDate.split('/');
+      if (paymentMethod === "card") {
+        const [expiryMonth, expiryYear] = cardDetails.expiryDate.split("/");
         paymentDetails = {
-          cardNumber: cardDetails.cardNumber.replace(/\s/g, ''),
+          cardNumber: cardDetails.cardNumber.replace(/\s/g, ""),
           expiryMonth,
           expiryYear,
-          cvv: cardDetails.cvv
+          cvv: cardDetails.cvv,
         };
-      } else if (paymentMethod === 'upi') {
+      } else if (paymentMethod === "upi") {
         paymentDetails = { upiId };
-      } else if (paymentMethod === 'cod') {
-        paymentDetails = { method: 'cash_on_delivery' };
+      } else if (paymentMethod === "cod") {
+        paymentDetails = { method: "cash_on_delivery" };
       }
 
       // Process payment
-      const paymentResponse = await fetch('/api/orders/payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-        },
-        body: JSON.stringify({
-          orderId,
-          paymentDetails
-        }),
-      });
+      const paymentResponse = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/orders/payment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          body: JSON.stringify({
+            orderId,
+            paymentDetails,
+          }),
+        }
+      );
 
       if (paymentResponse.ok) {
         const paymentData = await paymentResponse.json();
         // Clear the cart after successful payment
         await clearCart();
         // Navigate to home page without popup
-        navigate('/');
+        navigate("/");
       } else {
         const errorData = await paymentResponse.json().catch(() => ({}));
-        alert(`Payment failed: ${errorData.message || 'Unknown error'}`);
+        alert(`Payment failed: ${errorData.message || "Unknown error"}`);
       }
     } catch (error) {
-      console.error('Error processing payment:', error);
-      alert('Error processing payment. Please try again.');
+      console.error("Error processing payment:", error);
+      alert("Error processing payment. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -95,14 +98,16 @@ const Payment = () => {
           <h1 className="text-3xl font-bold text-center mb-8">Payment</h1>
 
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Select Payment Method</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              Select Payment Method
+            </h2>
 
             <div className="space-y-4 mb-6">
               <label className="flex items-center">
                 <input
                   type="radio"
                   value="card"
-                  checked={paymentMethod === 'card'}
+                  checked={paymentMethod === "card"}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   className="mr-3"
                 />
@@ -112,7 +117,7 @@ const Payment = () => {
                 <input
                   type="radio"
                   value="upi"
-                  checked={paymentMethod === 'upi'}
+                  checked={paymentMethod === "upi"}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   className="mr-3"
                 />
@@ -122,7 +127,7 @@ const Payment = () => {
                 <input
                   type="radio"
                   value="cod"
-                  checked={paymentMethod === 'cod'}
+                  checked={paymentMethod === "cod"}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   className="mr-3"
                 />
@@ -131,11 +136,16 @@ const Payment = () => {
             </div>
 
             <form onSubmit={handleSubmit}>
-              {paymentMethod === 'card' && (
+              {paymentMethod === "card" && (
                 <div className="space-y-4 mb-6">
                   <h3 className="text-lg font-medium">Card Details</h3>
                   <div>
-                    <label htmlFor="cardholderName" className="block text-gray-700 mb-2">Cardholder Name</label>
+                    <label
+                      htmlFor="cardholderName"
+                      className="block text-gray-700 mb-2"
+                    >
+                      Cardholder Name
+                    </label>
                     <input
                       type="text"
                       id="cardholderName"
@@ -148,7 +158,12 @@ const Payment = () => {
                     />
                   </div>
                   <div>
-                    <label htmlFor="cardNumber" className="block text-gray-700 mb-2">Card Number</label>
+                    <label
+                      htmlFor="cardNumber"
+                      className="block text-gray-700 mb-2"
+                    >
+                      Card Number
+                    </label>
                     <input
                       type="text"
                       id="cardNumber"
@@ -163,7 +178,12 @@ const Payment = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="expiryDate" className="block text-gray-700 mb-2">Expiry Date</label>
+                      <label
+                        htmlFor="expiryDate"
+                        className="block text-gray-700 mb-2"
+                      >
+                        Expiry Date
+                      </label>
                       <input
                         type="text"
                         id="expiryDate"
@@ -177,7 +197,9 @@ const Payment = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="cvv" className="block text-gray-700 mb-2">CVV</label>
+                      <label htmlFor="cvv" className="block text-gray-700 mb-2">
+                        CVV
+                      </label>
                       <input
                         type="text"
                         id="cvv"
@@ -194,11 +216,13 @@ const Payment = () => {
                 </div>
               )}
 
-              {paymentMethod === 'upi' && (
+              {paymentMethod === "upi" && (
                 <div className="space-y-4 mb-6">
                   <h3 className="text-lg font-medium">UPI Details</h3>
                   <div>
-                    <label htmlFor="upiId" className="block text-gray-700 mb-2">UPI ID</label>
+                    <label htmlFor="upiId" className="block text-gray-700 mb-2">
+                      UPI ID
+                    </label>
                     <input
                       type="text"
                       id="upiId"
@@ -213,10 +237,11 @@ const Payment = () => {
                 </div>
               )}
 
-              {paymentMethod === 'cod' && (
+              {paymentMethod === "cod" && (
                 <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
                   <p className="text-yellow-800">
-                    <strong>Cash on Delivery:</strong> Pay when your order is delivered to your doorstep.
+                    <strong>Cash on Delivery:</strong> Pay when your order is
+                    delivered to your doorstep.
                   </p>
                 </div>
               )}
@@ -234,7 +259,7 @@ const Payment = () => {
                   disabled={loading}
                   className="flex-1 bg-orange-600 text-white py-3 px-6 rounded hover:bg-orange-700 transition-colors disabled:opacity-50"
                 >
-                  {loading ? 'Processing...' : 'Pay Now'}
+                  {loading ? "Processing..." : "Pay Now"}
                 </button>
               </div>
             </form>

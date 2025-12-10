@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { useCart } from '../contexts/CartContext';
-import { useFavorites } from '../contexts/FavoritesContext';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
+import { useFavorites } from "../contexts/FavoritesContext";
 
 const ProductCard = ({ product, index }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -24,22 +24,25 @@ const ProductCard = ({ product, index }) => {
 
   const handleProductClick = async () => {
     try {
-      const response = await fetch('/api/categories/names', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: product.name }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/categories/names`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name: product.name }),
+        }
+      );
       if (response.ok) {
-        console.log('API call successful');
-        navigate('/category-details', { state: { product } });
+        console.log("API call successful");
+        navigate("/category-details", { state: { product } });
       } else {
-        console.error('API call failed');
+        console.error("API call failed");
       }
     } catch (error) {
-      console.error('Error calling API:', error);
+      console.error("Error calling API:", error);
     }
   };
 
@@ -48,7 +51,7 @@ const ProductCard = ({ product, index }) => {
     const result = await addItem(product.id);
     if (result.success) {
       // Show success message or update UI
-      console.log('Item added to cart successfully');
+      console.log("Item added to cart successfully");
     } else {
       alert(result.message);
     }
@@ -82,13 +85,25 @@ const ProductCard = ({ product, index }) => {
           className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors duration-200"
           onClick={handleToggleFavorite}
         >
-          <svg className="w-6 h-6" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          <svg
+            className="w-6 h-6"
+            fill={isWishlisted ? "currentColor" : "none"}
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+            />
           </svg>
         </button>
       </div>
       <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">{product.name}</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+          {product.name}
+        </h3>
         <p className="text-gray-600 mb-4">₹{product.price}</p>
       </div>
     </motion.div>

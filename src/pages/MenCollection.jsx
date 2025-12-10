@@ -1,41 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
-import Hero from '../components/Hero';
-import ProductCard from '../components/ProductCard';
-import Footer from '../components/Footer';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import Header from "../components/Header";
+import Hero from "../components/Hero";
+import ProductCard from "../components/ProductCard";
+import Footer from "../components/Footer";
+import { useAuth } from "../contexts/AuthContext";
 
 const MenCollection = () => {
   const { token } = useAuth();
-  const [sortBy, setSortBy] = useState('newest');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState("newest");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const fetchCategories = async () => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      const response = await fetch('/api/categories/grouped', {
-        headers: token ? {
-          'Authorization': `Bearer ${token}`,
-        } : {},
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/categories/grouped`,
+        {
+          headers: token
+            ? {
+                Authorization: `Bearer ${token}`,
+              }
+            : {},
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         const allProducts = Object.entries(data).flatMap(([cat, items]) =>
-          items.slice(0, 1).map(item => ({ ...item, categoryName: cat, category: cat.toLowerCase().replace(' ', '-'), image: `http://localhost:3001${item.images[0]}` }))
+          items
+            .slice(0, 1)
+            .map((item) => ({
+              ...item,
+              categoryName: cat,
+              category: cat.toLowerCase().replace(" ", "-"),
+              image: `http://localhost:3001${item.images[0]}`,
+            }))
         );
         setProducts(allProducts);
-        setCategories(['all', ...Object.keys(data).map(cat => cat.toLowerCase().replace(' ', '-'))]);
+        setCategories([
+          "all",
+          ...Object.keys(data).map((cat) =>
+            cat.toLowerCase().replace(" ", "-")
+          ),
+        ]);
       } else {
-        setError('Failed to fetch categories.');
+        setError("Failed to fetch categories.");
       }
     } catch (err) {
-      setError('Error fetching categories.');
+      setError("Error fetching categories.");
     } finally {
       setLoading(false);
     }
@@ -45,13 +62,14 @@ const MenCollection = () => {
     fetchCategories();
   }, [token]);
 
-  const filteredProducts = products.filter(product =>
-    selectedCategory === 'all' || product.category === selectedCategory
+  const filteredProducts = products.filter(
+    (product) =>
+      selectedCategory === "all" || product.category === selectedCategory
   );
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === 'price-low') return a.price - b.price;
-    if (sortBy === 'price-high') return b.price - a.price;
+    if (sortBy === "price-low") return a.price - b.price;
+    if (sortBy === "price-high") return b.price - a.price;
     return 0; // newest or popular, assuming order is fine
   });
 
@@ -62,12 +80,16 @@ const MenCollection = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar */}
-          <aside className={`lg:w-1/4 ${isFiltersOpen ? 'block' : 'hidden'} lg:block`}>
+          <aside
+            className={`lg:w-1/4 ${
+              isFiltersOpen ? "block" : "hidden"
+            } lg:block`}
+          >
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold mb-4">Filters</h3>
               <div className="mb-6">
                 <h4 className="font-medium mb-2">Categories</h4>
-                {categories.map(category => (
+                {categories.map((category) => (
                   <label key={category} className="block mb-2">
                     <input
                       type="radio"
@@ -77,7 +99,8 @@ const MenCollection = () => {
                       onChange={(e) => setSelectedCategory(e.target.value)}
                       className="mr-2"
                     />
-                    {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
+                    {category.charAt(0).toUpperCase() +
+                      category.slice(1).replace("-", " ")}
                   </label>
                 ))}
               </div>
@@ -113,7 +136,11 @@ const MenCollection = () => {
             {!loading && !error && (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {sortedProducts.map((product, index) => (
-                  <ProductCard key={product.id} product={product} index={index} />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={index}
+                  />
                 ))}
               </div>
             )}
