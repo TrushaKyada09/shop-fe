@@ -7,8 +7,12 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/api': 'http://localhost:3001',
+      '/api': 'https://shop-d9kr.onrender.com',
     },
     cors: true,
   },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+  }
 })
