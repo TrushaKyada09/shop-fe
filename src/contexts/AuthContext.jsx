@@ -48,9 +48,24 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setToken(authToken);
 
-      return { success: true };
+      return { success: true, user: userData, token: authToken };
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Login failed";
+      console.error("Login error:", err);
+      let errorMessage = "Login failed";
+
+      if (err.response) {
+        // Server responded with error status
+        errorMessage =
+          err.response.data?.message || `Server error: ${err.response.status}`;
+      } else if (err.request) {
+        // Network error
+        errorMessage =
+          "Network error. Please check if the backend server is running.";
+      } else {
+        // Other error
+        errorMessage = err.message || "An unexpected error occurred";
+      }
+
       setError(errorMessage);
       return { success: false, error: errorMessage };
     } finally {
@@ -70,7 +85,7 @@ export const AuthProvider = ({ children }) => {
       setUser(newUser);
       setToken(authToken);
 
-      return { success: true };
+      return { success: true, user: newUser, token: authToken };
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Registration failed";
       setError(errorMessage);

@@ -15,32 +15,26 @@ const LoginModal = ({ isOpen, onClose }) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
+
     try {
-      // Try API first
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setMessage(data.message);
-        login(data.user, data.token); // Pass user data and token
-        if (data.user && data.user.role === 'admin') {
+      const result = await login({ email, password });
+      
+      if (result.success) {
+        setMessage('Login successful!');
+        // Check user role for navigation
+        if (result.user && result.user.role === 'admin') {
           navigate('/admin');
-        } // For user, stay on current page
+        }
         setTimeout(() => onClose(), 2000);
-        return;
       } else {
-        setMessage(data.message || 'Login failed!');
-        return;
+        setMessage(result.error || 'Login failed!');
       }
     } catch (error) {
-       setMessage('Network error. Please check if the backend server is running.');
-     }
-    setLoading(false);
+      console.error('Login error:', error);
+      setMessage('Network error. Please check if the backend server is running.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
